@@ -9,6 +9,10 @@ export function login(email, password) {
     return axiosInstance.post('/auth/login', { email, password });
 }
 
+export function googleLogin(googleData) {
+    return axiosInstance.post('/auth/google', googleData);
+}
+
 export function formatError(error) {
     const msg = error?.response?.data?.message || 'Authentication Failed';
     swal('Oops', msg, 'error');

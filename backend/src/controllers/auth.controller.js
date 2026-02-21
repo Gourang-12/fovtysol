@@ -133,8 +133,25 @@ exports.refreshToken = async (req, res) => {
 };
 
 exports.googleAuth = async (req, res) => {
-    const { email, name, picture, sub } = req.body;
+    const { access_token } = req.body;
     try {
+        // Fetch user info from Google using the access_token
+        const googleRes = await fetch(
+            'https://www.googleapis.com/oauth2/v3/userinfo',
+            { headers: { Authorization: `Bearer ${access_token}` } }
+        );
+        if (!googleRes.ok) {
+            return res.status(401).json({ success: false, message: 'Invalid Google token' });
+        }
+        const googleUser = await googleRes.json();
+        const { sub, email, picture } = googleUser;
+        // Google may return 'name' or 'given_name'+'family_name'
+        const name = googleUser.name || `${googleUser.given_name || ''} ${googleUser.family_name || ''}`.trim() || email?.split('@')[0];
+
+        if (!email) {
+            return res.status(400).json({ success: false, message: 'Could not retrieve email from Google. Please ensure email access is granted.' });
+        }
+
         let user = await User.findOne({ email });
         if (user?.isBlocked) {
             return res.status(403).json({ success: false, message: 'Account blocked' });

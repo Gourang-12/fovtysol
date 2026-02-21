@@ -1,6 +1,7 @@
 import {
     formatError,
     login,
+    googleLogin,
     saveTokenInLocalStorage,
     signUp,
 } from '../../services/AuthService';
@@ -27,12 +28,6 @@ export function signupAction(name, email, password, navigate) {
     };
 }
 
-export function Logout(navigate) {
-    localStorage.removeItem('userDetails');
-    if (navigate) navigate('/login');
-    return { type: LOGOUT_ACTION };
-}
-
 export function loginAction(email, password, navigate) {
     return (dispatch) => {
         login(email, password)
@@ -48,30 +43,35 @@ export function loginAction(email, password, navigate) {
     };
 }
 
-export function loginFailedAction(data) {
-    return { type: LOGIN_FAILED_ACTION, payload: data };
+export function googleLoginAction(googleData, navigate) {
+    return (dispatch) => {
+        googleLogin(googleData)
+            .then((response) => {
+                saveTokenInLocalStorage(response.data.user);
+                runLogoutTimer(dispatch, 15 * 60 * 1000, navigate);
+                dispatch(loginConfirmedAction(response.data.user));
+                navigate('/dashboard');
+            })
+            .catch((error) => {
+                dispatch(loginFailedAction(formatError(error)));
+            });
+    };
 }
 
-export function loginConfirmedAction(data) {
-    return { type: LOGIN_CONFIRMED_ACTION, payload: data };
+export function Logout(navigate) {
+    localStorage.removeItem('userDetails');
+    if (navigate) navigate('/login');
+    return { type: LOGOUT_ACTION };
 }
 
-export function confirmedSignupAction(payload) {
-    return { type: SIGNUP_CONFIRMED_ACTION, payload };
-}
-
-export function signupFailedAction(message) {
-    return { type: SIGNUP_FAILED_ACTION, payload: message };
-}
-
-export function loadingToggleAction(status) {
-    return { type: LOADING_TOGGLE_ACTION, payload: status };
-}
+export function loginFailedAction(data) { return { type: LOGIN_FAILED_ACTION, payload: data }; }
+export function loginConfirmedAction(data) { return { type: LOGIN_CONFIRMED_ACTION, payload: data }; }
+export function confirmedSignupAction(payload) { return { type: SIGNUP_CONFIRMED_ACTION, payload }; }
+export function signupFailedAction(message) { return { type: SIGNUP_FAILED_ACTION, payload: message }; }
+export function loadingToggleAction(status) { return { type: LOADING_TOGGLE_ACTION, payload: status }; }
 
 export function runLogoutTimer(dispatch, timer, navigate) {
-    setTimeout(() => {
-        dispatch(Logout(navigate));
-    }, timer);
+    setTimeout(() => dispatch(Logout(navigate)), timer);
 }
 
 export function checkAutoLogin(dispatch, navigate) {
@@ -80,7 +80,6 @@ export function checkAutoLogin(dispatch, navigate) {
         dispatch(Logout(navigate));
         return;
     }
-
     const tokenDetails = JSON.parse(tokenDetailsString);
     const expireDate = new Date(tokenDetails.expireDate);
     const todaysDate = new Date();
@@ -89,7 +88,6 @@ export function checkAutoLogin(dispatch, navigate) {
         dispatch(Logout(navigate));
         return;
     }
-
     dispatch(loginConfirmedAction(tokenDetails));
     runLogoutTimer(dispatch, expireDate.getTime() - todaysDate.getTime(), navigate);
 }
