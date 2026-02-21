@@ -11,7 +11,18 @@ const app = express();
 // Security Middleware
 app.use(helmet());
 app.use(cors({
-    origin: process.env.CLIENT_URL || 'http://localhost:5173',
+    origin: (origin, callback) => {
+        // Allow requests with no origin (mobile apps, curl, Postman)
+        if (!origin) return callback(null, true);
+        // In development, allow any localhost port
+        if (process.env.NODE_ENV !== 'production' && /^http:\/\/localhost:\d+$/.test(origin)) {
+            return callback(null, true);
+        }
+        // In production, only allow CLIENT_URL
+        const allowed = process.env.CLIENT_URL || 'http://localhost:5173';
+        if (origin === allowed) return callback(null, true);
+        callback(new Error(`CORS blocked for origin: ${origin}`));
+    },
     credentials: true,
 }));
 
