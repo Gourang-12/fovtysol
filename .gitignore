@@ -1,0 +1,99 @@
+# ============================================================
+# Fovty Solutions Pro — MERN Stack .gitignore
+# ============================================================
+
+# ───────────────────────────────────────────
+# Dependencies
+# ───────────────────────────────────────────
+node_modules/
+.npm
+.yarn
+
+# ───────────────────────────────────────────
+# Environment Variables (NEVER commit these)
+# ───────────────────────────────────────────
+.env
+.env.*
+!.env.example
+
+# ───────────────────────────────────────────
+# Build Outputs
+# ───────────────────────────────────────────
+# Vite / React
+frontend/dist/
+frontend/.vite/
+
+# ───────────────────────────────────────────
+# Logs
+# ───────────────────────────────────────────
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+backend/error.log
+backend/out.log
+backend/clean_log.txt
+
+# ───────────────────────────────────────────
+# Runtime & Cache
+# ───────────────────────────────────────────
+.cache/
+.parcel-cache/
+.eslintcache
+*.tsbuildinfo
+
+# ───────────────────────────────────────────
+# MongoDB Memory Server (dev dependency cache)
+# ───────────────────────────────────────────
+.mongo/
+mongodb-binaries/
+
+# ───────────────────────────────────────────
+# User Uploaded Files (generated at runtime)
+# ───────────────────────────────────────────
+backend/uploads/
+!backend/uploads/.gitkeep
+
+# ───────────────────────────────────────────
+# OS Files
+# ───────────────────────────────────────────
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+
+# ───────────────────────────────────────────
+# IDE & Editor
+# ───────────────────────────────────────────
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# ───────────────────────────────────────────
+# Testing
+# ───────────────────────────────────────────
+coverage/
+.nyc_output/
+
+# ───────────────────────────────────────────
+# Misc
+# ───────────────────────────────────────────
+*.pem
+*.key
+*.cert
